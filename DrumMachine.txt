@@ -1,0 +1,90 @@
+# Snare
+in_thread(name: :NoteGrid) do
+  live_loop :myLoop do
+    
+    # Play this around 120bpm
+    hiHatArr = [1,0,1,1,0,0,1,0,0,0,1,0,0,0,1,0]
+    snareArr = [0,0,0,0,1,0,0,2,0,0,0,0,1,0,0,0]
+    thirdHandArr = [0,2,0,0,0,0,0,3,0,0,3,0,0,0,2,2]
+    leftFootArr = [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+    kickArr = [1,0,0,0,1,0,0,0,1,0,0,1,1,0,1,0]
+    
+    loopSize=4
+    
+    splash=1
+    loopSize.times do
+      16.times do |i|
+        print("Groove")
+        # 1st hit of the Groove after a fill is a splash
+        if splash==1 and i==0
+          sample :drum_splash_soft
+          splash=splash+1
+        end
+        
+        # One bar of 16th Notes
+        
+        # Snare
+        sample :sn_generic if snareArr[i]==1
+        sample :drum_snare_hard if snareArr[i]==2
+        sample :drum_snare_soft  if snareArr[i]==3
+        
+        # Right Foot
+        sample :drum_bass_hard if kickArr[i]==1
+        sample :drum_bass_soft if kickArr[i]==2
+        
+        # Hi Hat
+        sample :drum_cymbal_closed, amp:0.8 if hiHatArr[i]==1
+        
+        # Left Foot
+        sample :drum_cymbal_pedal,amp:2 if leftFootArr[i]==1
+        
+        # Third Hand
+        sample :drum_cowbell if thirdHandArr[i]==1
+        sample :tabla_tas2 if thirdHandArr[i]==2
+        sample :tabla_tas3 if thirdHandArr[i]==3
+        sample :tabla_ke1 if thirdHandArr[i]==4
+        
+        # Left Foot
+        # Call the Modulo Synth
+        modSynth i,3
+        
+        sleep 0.25
+      end
+    end
+    
+    # Every 4 Bars - do a fill
+    #linearFill rrand_i(0,100)
+    splash=1
+  end
+  
+end
+
+define :modSynth do |i,m|
+  if i.modulo(m)==0
+    use_synth :blade
+    play choose(chord(:D3, :minor)), release: 0.3, cutoff: rrand(60, 120)
+  end
+end
+
+# Linear Fill Function
+define :linearFill do |seed|
+  LinearFillArr = [rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8),rrand_i(0, 8)]
+  
+  use_random_seed seed
+  
+  16.times do |i|
+    print("Fill")
+    # 0 is silence
+    sample :drum_snare_hard if LinearFillArr[i]==1
+    sample :drum_cowbell if LinearFillArr[i]==2
+    sample :drum_cymbal_pedal if LinearFillArr[i]==3
+    sample :drum_tom_lo_hard if LinearFillArr[i]==4
+    sample :drum_tom_hi_hard if LinearFillArr[i]==5
+    sample :drum_tom_mid_hard if LinearFillArr[i]==6
+    sample :drum_bass_hard if LinearFillArr[i]==7
+    sample :drum_snare_soft if LinearFillArr[i]==8
+    sleep 0.25
+  end
+end
+
+
